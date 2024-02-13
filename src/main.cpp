@@ -1,22 +1,35 @@
 #include "Arduino.h"
+#include "Wire.h"
 
-
-#define I2C_ADDR 0x55 //Set to desired i2c-adress
-#define DEBUG    //Define for various debug outputs (#undef to disable) - !!!SLOWS DOWN CODE SIGNIFICANTLY!!!
+const char I2C_ADDR = 0x55; //Set to desired i2c-adress
+#undef DEBUG    //Define for various debug outputs (#undef to disable) - !!!ENABLING SLOWS DOWN CODE SIGNIFICANTLY!!!
 
 #define Module1 0x12
 #define Module2 0x13
 #define Module3 0x14
 
-#include "Wire.h"
-#define BUILTIN_LED 2 //GPIO of BUILTIN_LED
+
+#define BUILTIN_LED 25 //GPIO of BUILTIN_LED for pico
+#ifdef esp32dev
+  #undef BUILTIN_LED
+  #define BUILTIN_LED 2 //GPIO of BUILTIN_LED for esp32dev
+#endif
+
+
+void sendData(float data1, float data2);  //Function to send data back to the master
+void sendData(int data1, int data2);  //Overload to accept int as argument
+void sendData(char data1, char data2);  //Overload to accept char as argument
+void onRequest(); //Code to execute when master requests data from the slave
+void onReceive(int len);  //Code to execute when master sends data to the slave
+
+
 
 void sendData(float data1 = 0, float data2 = 0){  //Function to send data back to the master
   //Pointer to the float
   uint8_t *bytePointer1 = reinterpret_cast<uint8_t*>(&data1);
 
   //Iterate throught the adresses of the pointer, to read the bytes of the float, and send them via i2c
-  for (int i = 0; i < sizeof(float); ++i) {
+  for (uint8_t i = 0; i < sizeof(float); ++i) {
       Wire.write((*bytePointer1));
       bytePointer1++;
   }
@@ -25,7 +38,7 @@ void sendData(float data1 = 0, float data2 = 0){  //Function to send data back t
   uint8_t *bytePointer2 = reinterpret_cast<uint8_t*>(&data2);
 
   //Iterate throught the adresses of the pointer, to read the bytes of the float, and send them via i2c
-  for (int i = 0; i < sizeof(float); ++i) {
+  for (uint8_t i = 0; i < sizeof(float); ++i) {
       Wire.write((*bytePointer2));
       bytePointer2++;
   }
