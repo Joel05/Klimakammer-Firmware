@@ -22,7 +22,7 @@ void sendData(char data1, char data2);  //Overload to accept char as argument
 void onRequest(); //Code to execute when master requests data from the slave
 void onReceive(int len);  //Code to execute when master sends data to the slave
 
-
+#pragma region sendData
 
 void sendData(float data1 = 0, float data2 = 0){  //Function to send data back to the master
   //Pointer to the float
@@ -51,6 +51,8 @@ void sendData(int data1 = 0, int data2 = 0){ //Overload to accept int as argumen
 void sendData(char data1 = 0, char data2 = 0){  //Overload to accept char as argument
   sendData((float)data1, (float)data2);
 }
+
+#pragma endregion
 
 #ifdef DEBUG
 void blink(){
