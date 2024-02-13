@@ -103,6 +103,35 @@ void onReceive(int len){
   Serial.println("OnReceive");
   blink();
   #endif
+  //Code to execute when master sends data to the slave
+  char module = Wire.read();  //Read from which sensor/module the master wants to change
+  char data = Wire.read();  //Read the data the master wants to send
+  switch(module){
+    case Module1:
+      #ifdef DEBUG
+        Serial.println("Module 1 called");
+      #endif
+      //Code to execute when Module1 is being called
+      break;
+    case Module2:
+      #ifdef DEBUG
+        Serial.println("Module 2 called");
+      #endif
+      //Code to execute when Module2 is being called
+      break;
+    case Module3:
+      #ifdef DEBUG
+        Serial.println("Module 3 called");
+      #endif
+      //Code to execute when Module3 is being called
+      break;
+    default:
+      //Code to execute when unkown module is being called
+      #ifdef DEBUG
+        Serial.println("Unknown module called");
+      #endif
+      break;
+  }
 }
 
 void setup() {
