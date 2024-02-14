@@ -4,9 +4,9 @@
 const char I2C_ADDR = 0x55; //Set to desired i2c-adress
 #undef DEBUG    //Define for various debug outputs (#undef to disable) - !!!ENABLING SLOWS DOWN CODE SIGNIFICANTLY!!!
 
-#define Module1 0x12
-#define Module2 0x13
-#define Module3 0x14
+#define Sensor1 0x12
+#define Sensor2 0x13
+#define Sensor3 0x14
 
 
 #define BUILTIN_LED 25 //GPIO of BUILTIN_LED for pico
@@ -73,19 +73,19 @@ void onRequest(){ //Code to execute when master requests data from the slave
   #endif
   char module = Wire.read();  //Read from which sensor/module the master wants data
   switch(module){
-    case Module1:
+    case Sensor1:
       #ifdef DEBUG
         Serial.println("Module 1 called");
       #endif
       //Code to execute when Module1 is being called
       break;
-    case Module2:
+    case Sensor2:
       #ifdef DEBUG
         Serial.println("Module 2 called");
       #endif
       //Code to execute when Module2 is being called
       break;
-    case Module3:
+    case Sensor3:
       #ifdef DEBUG
         Serial.println("Module 3 called");
       #endif
@@ -109,19 +109,19 @@ void onReceive(int len){
   char module = Wire.read();  //Read from which sensor/module the master wants to change
   char data = Wire.read();  //Read the data the master wants to send
   switch(module){
-    case Module1:
+    case Sensor1:
       #ifdef DEBUG
         Serial.println("Module 1 called");
       #endif
       //Code to execute when Module1 is being called
       break;
-    case Module2:
+    case Sensor2:
       #ifdef DEBUG
         Serial.println("Module 2 called");
       #endif
       //Code to execute when Module2 is being called
       break;
-    case Module3:
+    case Sensor3:
       #ifdef DEBUG
         Serial.println("Module 3 called");
       #endif
