@@ -1,13 +1,14 @@
 #include "Arduino.h"
 #include "Wire.h"
 
-const char I2C_ADDR = 0x55; //Set to desired i2c-adress
+const char I2C_ADDR = 0x70; //Set to desired i2c-adress
 #undef DEBUG    //Define for various debug outputs (#undef to disable) - !!!ENABLING SLOWS DOWN CODE SIGNIFICANTLY!!!
 
-#define Sensor1 0x12
-#define Sensor2 0x13
-#define Sensor3 0x14
+#define Module1 0x12
+#define Module2 0x13
+#define Module3 0x14
 
+char module = 0x00;  //Variable to store the module that is being called
 
 #define BUILTIN_LED 25 //GPIO of BUILTIN_LED for pico
 #ifdef esp32dev
@@ -30,7 +31,7 @@ void sendData(float data1 = 0, float data2 = 0){  //Function to send data back t
 
   //Iterate throught the adresses of the pointer, to read the bytes of the float, and send them via i2c
   for (uint8_t i = 0; i < sizeof(float); ++i) {
-      Wire.write((*bytePointer1));
+      Wire1.write((*bytePointer1));
       bytePointer1++;
   }
 
@@ -39,7 +40,7 @@ void sendData(float data1 = 0, float data2 = 0){  //Function to send data back t
 
   //Iterate throught the adresses of the pointer, to read the bytes of the float, and send them via i2c
   for (uint8_t i = 0; i < sizeof(float); ++i) {
-      Wire.write((*bytePointer2));
+      Wire1.write((*bytePointer2));
       bytePointer2++;
   }
 }
@@ -68,24 +69,25 @@ void blink(){
 void onRequest(){ //Code to execute when master requests data from the slave
   #ifdef DEBUG
   Serial.println("OnRequest");
-  Serial.println(Wire.peek());
+  Serial.println(Wire1.peek());
   blink();
   #endif
-  char module = Wire.read();  //Read from which sensor/module the master wants data
+  //Data is already saved in the module variable
   switch(module){
-    case Sensor1:
+    case Module1:
       #ifdef DEBUG
         Serial.println("Module 1 called");
       #endif
       //Code to execute when Module1 is being called
+      Wire1.write(0x65);
       break;
-    case Sensor2:
+    case Module2:
       #ifdef DEBUG
         Serial.println("Module 2 called");
       #endif
       //Code to execute when Module2 is being called
       break;
-    case Sensor3:
+    case Module3:
       #ifdef DEBUG
         Serial.println("Module 3 called");
       #endif
@@ -96,6 +98,7 @@ void onRequest(){ //Code to execute when master requests data from the slave
       #ifdef DEBUG
         Serial.println("Unknown module called");
       #endif
+      Wire1.write(0);  //Send 0 back to the master
       break;
   }
 }
@@ -106,22 +109,25 @@ void onReceive(int len){
   blink();
   #endif
   //Code to execute when master sends data to the slave
-  char module = Wire.read();  //Read from which sensor/module the master wants to change
-  char data = Wire.read();  //Read the data the master wants to send
+  module = Wire1.read();  //Read from which sensor/module the master wants to change
+  if (!Wire1.available()){  //Check if there is no more data to read, which means that the master wants to read data from the slave
+    return;
+  }
+  char data = Wire1.read();  //Read the data the master wants to send
   switch(module){
-    case Sensor1:
+    case Module1:
       #ifdef DEBUG
         Serial.println("Module 1 called");
       #endif
       //Code to execute when Module1 is being called
       break;
-    case Sensor2:
+    case Module2:
       #ifdef DEBUG
         Serial.println("Module 2 called");
       #endif
       //Code to execute when Module2 is being called
       break;
-    case Sensor3:
+    case Module3:
       #ifdef DEBUG
         Serial.println("Module 3 called");
       #endif
@@ -142,11 +148,13 @@ void setup() {
   pinMode(BUILTIN_LED, OUTPUT);
   #endif
   Serial.begin(115200);
+  Wire1.setSDA(10);
+  Wire1.setSCL(11);
+  Wire1.onReceive(onReceive);  //Function to be called when a master sends data to the slave
+  Wire1.onRequest(onRequest);  //Function to be called when a master requests data from the slave
+  Wire1.begin((uint8_t)I2C_ADDR);  //Register this device as a slave on the i2c-bus (on bus 0)
 
-  Wire.onReceive(onReceive);  //Function to be called when a master sends data to the slave
-  Wire.onRequest(onRequest);  //Function to be called when a master requests data from the slave
-  Wire.begin((uint8_t)I2C_ADDR);  //Register this device as a slave on the i2c-bus (on bus 0)
-
+  Wire.begin();
 }
 
 void loop() {
