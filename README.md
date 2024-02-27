@@ -52,7 +52,9 @@ Advise for known issues will stand here, when issues arise.
 [Joel Rupp](https://github.com/Joel05) 
 
 ## Version History
-
+* 0.2
+     * Bugfixes
+     * Changed Wire to Wire1
 * 0.1
     * Initial Release
 
